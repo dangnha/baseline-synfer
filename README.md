@@ -19,19 +19,23 @@ AU directions** to fill rare *emotion × AU-configuration* cells, with **text + 
 | §4 / §7 end-to-end edit + synthesize | `ferdiff/pipeline.py` |
 
 ```
-source x_0 ─► DiffAE encoder ─► z_sem            x_T = DDIM-invert(SD VAE(x_0))
-                                 │
-                                 ▼
-               AU operator:  z_edit = z_sem + W·a_res   (dependency-aware + orthogonal-projected)
-                                 │
-              text "a photo of <emotion> face" ─► CLIP ─► c_text
-              AU vector a ─► AU projector ─► c_au
-                                 │
-                                 ▼
-              frozen SD U-Net + decoupled cross-attention (text + semantic + AU)
-                                 │
-                                 ▼
-              DDIM decode ─► VAE decode ─► image ─► gates (AU, keep-A, emotion, identity)
+source x_0 ──► DiffAE encoder ──► z_sem (semantic)     x_T (stochastic)
+                                        │
+                                        ▼
+        AU direction operator W:  z_edit = z_sem + W · a_res   (disentangled)
+                                        │
+        text: "a photo of a <emotion> face" ─► CLIP ─► c_text
+        AU prompt: a ∈ R^K ─► AU projector ─► c_au (tokens)
+                                        │
+                                        ▼
+        frozen SD U-Net + adapters (AU adapter, ID adapter)
+          Z_new = Attn_text(Q,K_t,V_t) + λ_au·Attn_au(Q,K_a,V_a)
+                                        │
+                                        ▼
+        DDIM decode of x_T conditioned on (z_edit, c_text, c_au)
+                                        │
+                                        ▼
+        x̂_0  ──► acceptance–rejection gate (AU, emotion, identity, fidelity)
 ```
 
 ## Repository layout
