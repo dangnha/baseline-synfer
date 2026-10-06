@@ -1,0 +1,54 @@
+# FER-Diffusion pipeline config. Fill in the checkpoint/data paths below.
+diffae:
+  checkpoint: ""            # path to ffhq256_autoenc/last.ckpt (phizaz/diffae fork)
+  latent_dim: 512
+  device: cuda
+  nuisance_labels: [glasses, beard, gender, age]
+
+sd:
+  model_id: "stabilityai/stable-diffusion-2-1-base"   # or a local path
+  device: cuda
+  dtype: float16
+  num_inference_steps: 20
+  guidance_scale: 7.5
+  lambda_sem: 1.0
+  lambda_au: 1.0
+
+au:
+  # AU names in the SAME column order as OpenGraphAU / W.npz.
+  au_names: [AU1, AU2, AU4, AU5, AU6, AU7, AU9, AU10, AU12, AU14, AU15, AU17, AU20, AU23, AU24, AU25, AU26, AU45]
+  thresholds:
+    AU4: 0.2466
+    AU5: 0.5616
+    AU9: 0.4539
+    AU17: 0.3418
+    AU25: 0.7822
+  coactivation_graph: []     # allowed AU co-activation edges [[i,j], ...]
+
+gates:
+  target_au_delta: 0.10
+  keep_a_delta: 0.10
+  identity_threshold: 0.6
+  demographic_bins: null
+
+losses:
+  alpha: 1.0
+  beta: 1.0
+  gamma: 1.0
+  delta: 1.0
+  eta: 1.0
+
+train:
+  ridge_alpha: 1.0
+  neutralization_lambda: 0.1
+  neutralization_steps: 200
+  neutralization_lr: 0.05
+  dose_min: 1.0
+  dose_max: 30.0
+  dose_step: 1.0
+
+paths:
+  opengraphau: ""      # OpenGraphAU checkpoint (AU estimator)
+  aucanet: ""          # AUCANet checkpoint (emotion classifier), e.g. rafdb_best.pth
+  arcface: ""          # ArcFace / face-recognition backbone
+  clip_model_id: "openai/clip-vit-large-patch14"
